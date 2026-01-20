@@ -1,0 +1,297 @@
+﻿@page "/test"
+@using Swimlane.Core.DTOs
+@using Swimlane.UI.Services
+@inject TestService TestService
+@inject ISnackbar Snackbar
+
+<PageTitle>Test Management</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-6">
+    <MudText Typo="Typo.h4" Class="mb-4">Test Management</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="4">
+                <MudTextField @bind-Value="_searchTerm"
+                              Label="Search"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              OnKeyUp="@(async (e) => await SearchTests())" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="8" Class="d-flex justify-end align-center">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenCreateDrawer">
+                    Create New Test
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudTable Items="@_tests"
+              Hover="true"
+              Breakpoint="Breakpoint.Sm"
+              Loading="@_loading"
+              LoadingProgressColor="Color.Primary"
+              Elevation="4">
+        <HeaderContent>
+            <MudTh>Test Name</MudTh>
+            <MudTh>Created Date</MudTh>
+            <MudTh>Updated Date</MudTh>
+            <MudTh Style="text-align: right">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Test Name">@context.TestName</MudTd>
+            <MudTd DataLabel="Created Date">@context.CreatedDate.ToString("MMM dd, yyyy")</MudTd>
+            <MudTd DataLabel="Updated Date">@context.UpdatedDate.ToString("MMM dd, yyyy")</MudTd>
+            <MudTd DataLabel="Actions" Style="text-align: right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               OnClick="@(() => OpenEditDrawer(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               Size="Size.Small"
+                               OnClick="@(() => OpenDeleteDialog(context))" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No tests found</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Loading...</MudText>
+        </LoadingContent>
+    </MudTable>
+</MudContainer>
+
+<!-- Drawer for Create/Edit -->
+<MudDrawer @bind-Open="_drawerOpen"
+           Width="@_drawerWidth"
+           Anchor="Anchor.End"
+           Elevation="2"
+           Variant="DrawerVariant.Temporary"
+           OverlayAutoClose="false">
+
+    <!-- Header -->
+    <MudPaper Class="drawer-header" Elevation="0"
+              Style="background: var(--mud-palette-secondary); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 0;">
+        <div>
+            <MudText Typo="Typo.h6" Style="color: white; font-weight: 600;">
+                @(_currentTest.Id == Guid.Empty ? "Add Test" : "Edit Test")
+            </MudText>
+            <MudText Typo="Typo.caption" Style="color: white; opacity: 0.9;">
+                @(_currentTest.Id == Guid.Empty ? "Create a new test entry" : "Update test information")
+            </MudText>
+        </div>
+        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                       Style="color: white;"
+                       OnClick="@(() => CloseDrawer())" />
+    </MudPaper>
+
+    <MudDrawerContainer Style="display: flex; flex-direction: column; height: calc(100% - 72px);">
+        <MudPaper Elevation="0" Style="flex: 1; overflow-y: auto; padding: 20px; background: var(--mud-palette-surface); border-radius: 0;">
+            <EditForm Model="_currentTest" @ref="_editForm">
+                <DataAnnotationsValidator />
+
+                <!-- Test Information Section -->
+                <MudText Typo="Typo.body2" Class="mb-2" Style="font-weight: 600;">Test Details</MudText>
+
+                <MudTextField T="string"
+                              Label="Test Name"
+                              @bind-Value="_currentTest.TestName"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Required="true"
+                              For="@(() => _currentTest.TestName)"
+                              Placeholder="Enter test name"
+                              Class="mb-3"
+                              MaxLength="100"
+                              Counter="100" />
+
+                <!-- Additional Info if Editing -->
+                @if (_currentTest.Id != Guid.Empty)
+                {
+                    <MudText Typo="Typo.caption" Class="mt-2" Style="color: var(--mud-palette-text-secondary);">
+                        Created: @_originalTest?.CreatedDate.ToString("MMM dd, yyyy hh:mm tt")
+                    </MudText>
+                    <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);">
+                        Last Updated: @_originalTest?.UpdatedDate.ToString("MMM dd, yyyy hh:mm tt")
+                    </MudText>
+                }
+
+            </EditForm>
+        </MudPaper>
+
+        <!-- Footer with Buttons -->
+        <MudPaper Elevation="0" Style="padding: 16px 20px; background: var(--mud-palette-surface); border-top: 1px solid var(--mud-palette-lines-default); border-radius: 0;">
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Default"
+                           Style="text-transform: none; border-radius: 20px; padding: 8px 24px;"
+                           OnClick="@(() => CloseDrawer())"
+                           Disabled="@_saving">
+                    Cancel
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Style="text-transform: none; border-radius: 20px; padding: 8px 24px;"
+                           Disabled="@_saving"
+                           OnClick="SaveTest">
+                    @if (_saving)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Style="margin-right: 8px;" />
+                        <span>Saving...</span>
+                    }
+                    else
+                    {
+                        <span>Save changes</span>
+                    }
+                </MudButton>
+            </div>
+        </MudPaper>
+    </MudDrawerContainer>
+</MudDrawer>
+
+@code {
+    private List<TestResponseDto> _tests = new();
+    private bool _loading = true;
+    private string _searchTerm = string.Empty;
+    private GridRequestDto _gridRequest = new() { PageNumber = 1, PageSize = 100 };
+
+    // Drawer related
+    private bool _drawerOpen = false;
+    private string _drawerWidth = "500px";
+    private TestRequestDto _currentTest = new();
+    private TestResponseDto? _originalTest;
+    private EditForm? _editForm;
+    private bool _saving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTests();
+    }
+
+    private async Task LoadTests()
+    {
+        _loading = true;
+        _gridRequest.SearchTerm = _searchTerm;
+
+        var result = await TestService.GetAllTestsAsync(_gridRequest);
+
+        if (result.Success && result.Data != null)
+        {
+            _tests = result.Data.ToList();
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+
+        _loading = false;
+    }
+
+    private async Task SearchTests()
+    {
+        await LoadTests();
+    }
+
+    private void OpenCreateDrawer()
+    {
+        _currentTest = new TestRequestDto();
+        _originalTest = null;
+        _drawerOpen = true;
+    }
+
+    private void OpenEditDrawer(TestResponseDto test)
+    {
+        _originalTest = test;
+        _currentTest = new TestRequestDto
+        {
+            Id = test.Id,
+            TestName = test.TestName
+        };
+        _drawerOpen = true;
+    }
+
+    private void CloseDrawer()
+    {
+        _drawerOpen = false;
+        _currentTest = new TestRequestDto();
+        _originalTest = null;
+    }
+
+    private async Task SaveTest()
+    {
+        if (_editForm?.EditContext != null && !_editForm.EditContext.Validate())
+        {
+            _saving = false;
+            StateHasChanged();
+            return;
+        }
+
+
+        if (_currentTest.Id == Guid.Empty)
+        {
+            _saving = true;
+
+            var result = await TestService.UpsertAsync(_currentTest);
+
+            if (result.Success)
+            {
+                Snackbar.Add(result.Message, Severity.Success);
+                CloseDrawer();
+                await LoadTests();
+            }
+            else
+            {
+                Snackbar.Add(result.Message, Severity.Error);
+            }
+
+            _saving = false;
+        }
+        else
+        {
+            Snackbar.Add("Error saving", Severity.Error);
+        }
+
+        
+    }
+
+    private async Task OpenDeleteDialog(TestResponseDto test)
+    {
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Are you sure you want to delete '{test.TestName}'?" },
+            { "ButtonText", "Delete" },
+            { "Color", Color.Error }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Delete Test", parameters);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            await DeleteTest(test.Id);
+        }
+    }
+
+    private async Task DeleteTest(Guid id)
+    {
+        var result = await TestService.DeleteAsync(id);
+
+        if (result.Success)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+            await LoadTests();
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+    }
+}
+
+@inject IDialogService DialogService

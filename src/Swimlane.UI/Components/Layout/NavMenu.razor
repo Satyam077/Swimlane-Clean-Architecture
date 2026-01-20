@@ -1,0 +1,16 @@
+﻿<MudNavMenu Class="mud-nav-menu-custom">
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+    <MudNavLink Href="/test" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Notes">Test</MudNavLink>
+    <MudNavGroup Title="Administration" Expanded="false" Icon="@Icons.Material.Filled.AdminPanelSettings">
+        <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ManageAccounts">Clients Management</MudNavLink>
+        <MudNavLink Href="/security" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.GroupWork">Work Phases</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="System Setup" Expanded="false" Icon="@Icons.Material.Filled.Settings">
+        <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Paid">Plans</MudNavLink>
+        <MudNavLink Href="/security" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Discount">Coupons</MudNavLink>
+        <MudNavLink Href="/security" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.SupervisorAccount">Users</MudNavLink>
+        <MudNavLink Href="/security" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Email">Email Templates</MudNavLink>
+        <MudNavLink Href="/security" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Campaign">Email Blast</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Href="/profile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.VerifiedUser">My Profile</MudNavLink>
+</MudNavMenu>

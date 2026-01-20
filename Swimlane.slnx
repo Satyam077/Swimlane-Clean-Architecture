@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Swimlane.API/Swimlane.API.csproj" />
+    <Project Path="src/Swimlane.Application/Swimlane.Application.csproj" Id="dab95f7e-cef0-4646-9d93-582fdbadbd78" />
+    <Project Path="src/Swimlane.Core/Swimlane.Core.csproj" />
+    <Project Path="src/Swimlane.Infrastructure/Swimlane.Infrastructure.csproj" />
+    <Project Path="src/Swimlane.UI/Swimlane.UI.csproj" />
+  </Folder>
+</Solution>

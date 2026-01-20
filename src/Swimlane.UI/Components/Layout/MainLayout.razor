@@ -1,0 +1,125 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="ml-3">
+            <span style="color: white; font-weight: 700; letter-spacing: 0.5px;">Swim</span><span style="color: #e8531e; font-weight: 700; letter-spacing: 0.5px;">Lane</span>
+        </MudText>
+        <MudSpacer />
+        <MudIconButton Color="Color.Inherit" Class="mr-2 mt-1" Edge="Edge.Start" Icon="@DarkLightModeButtonIcon" OnClick="DarkModeToggle" />
+        <MudMenu Dense="true" Class="ml-2">
+            <ActivatorContent>
+                <MudAvatar Color="Color.Secondary">A</MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <MudCard Elevation="0" Square="true">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudAvatar Color="Color.Secondary">A</MudAvatar>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.body2">Test Admin</MudText>
+                            <MudText Typo="Typo.caption">test@yopmail.com</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                </MudCard>
+                <MudDivider Class="mb-2" />
+                <MudList T="string">
+                    <MudListItem Text="Profile" Icon="@Icons.Material.Filled.Person" OnClick="@(async () => await Profile())" />
+                    <MudListItem Text="Logout" Icon="@Icons.Material.Filled.Logout" OnClick="@(async () => await Logout())" />
+                </MudList>
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen">
+        <NavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="my-6">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">??</span>
+</div>
+
+@code {
+    private bool _drawerOpen = true;
+    private bool _isDarkMode = false;
+    private MudTheme? _theme = null;
+
+    protected override void OnInitialized()
+    {
+        _theme = new()
+        {
+            PaletteLight = _lightPalette,
+            PaletteDark = _darkPalette,
+            LayoutProperties = new LayoutProperties()
+        };
+    }
+
+    private void DarkModeToggle()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+
+    private readonly PaletteDark _darkPalette = new()
+    {
+        Primary = "#e8531e",
+        Secondary = "#009c9d",
+        AppbarBackground = "#384456",
+        DrawerBackground = "#384456",
+        DrawerText = "#E0E6ED",
+        DrawerIcon = "#E0E6ED",
+        Background = "#1a1f2e",
+        Surface = "#242b3d",
+        TableLines = "#3a4458",
+        LinesDefault = "#3a4458",
+        LinesInputs = "#00d0e4",
+        Error = "#FF6B6B"
+    };
+
+    private readonly PaletteLight _lightPalette = new()
+    {
+        Primary = "#e8531e",
+        Secondary = "#009c9d",
+        AppbarBackground = "#384456",
+        DrawerBackground = "#384456",
+        DrawerText = "#FFFFFF",
+        DrawerIcon = "#E0E6ED",
+        Background = "#F5F5F7",
+        Surface = "#FFFFFF",
+        TableLines = "#E0E0E0",
+        LinesDefault = "#E0E0E0",
+        LinesInputs = "#00d0e4",
+        Error = "#FF5353"
+    };
+    public string DarkLightModeButtonIcon => _isDarkMode switch
+    {
+        true => Icons.Material.Rounded.LightMode,
+        false => Icons.Material.Outlined.DarkMode,
+    };
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private Task Profile()
+    {
+        return Task.CompletedTask;
+    }
+    private Task Logout()
+    {
+        return Task.CompletedTask;
+    }
+}

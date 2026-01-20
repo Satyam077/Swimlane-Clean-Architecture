@@ -1,0 +1,52 @@
+/* Custom Navigation Menu Styles */
+
+/* NavMenu container styling - inherits from MudBlazor theme */
+.mud-nav-menu-custom {
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Ensure nav items have proper spacing */
+.mud-nav-menu-custom .mud-nav-item {
+    margin-bottom: 4px;
+}
+
+/* Style for nav links */
+.mud-nav-menu-custom .mud-nav-link {
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+/* Nav group styling */
+.mud-nav-menu-custom .mud-nav-group {
+    margin-bottom: 4px;
+}
+
+/* Nav group header */
+.mud-nav-menu-custom .mud-nav-group .mud-nav-link {
+    font-weight: 500;
+}
+
+/* Nested menu items have slightly smaller font and left padding */
+.mud-nav-menu-custom .mud-nav-group .mud-nav-item .mud-nav-link {
+    font-size: 0.9rem;
+    padding-left: 3.5rem;
+}
+
+/* Custom scrollbar for nav menu */
+.mud-nav-menu-custom::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mud-nav-menu-custom::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mud-nav-menu-custom::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.mud-nav-menu-custom::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
